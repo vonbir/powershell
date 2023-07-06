@@ -1,13 +1,13 @@
-﻿
-# connects to exchange online
-Connect-ExchangeOnline
+   
+# Check if Active Directory module is installed
+if (-not (Get-Module -Name ActiveDirectory -ListAvailable)) {
+    Write-Host "Active Directory module not found. Installing the module..."
+    Install-Module -Name RSAT-AD-PowerShell -Scope CurrentUser -Force
+}
 
-# connects to azure ad v1 (msonline module)
-Connect-MsolService 
-
-# connects to azure ad v2 (azuread module)
-Connect-AzureAD 
-
+# Import Active Directory module
+Import-Module -Name ActiveDirectory
+   
 # domain admin credentials
 $UserName = Read-Host "Please enter your on-prem AD username" -AsSecureString
 $Password = Read-Host "Please enter your AD password" -AsSecureString
@@ -48,51 +48,9 @@ if ($User -ne $Null) {
     Set-Aduser -Identity $samname -Add @{msExchHideFromAddressLists=$true} -Credential $Cred
      Write-Output "The msExchHideFromAddressLists attribute has been set to: $($samname.msExchHideFromAddressLists)"
 	}
-    # initiate sign-out of all office 365 sessions by revoking the refresh tokens issue to applications for a use
-    Get-AzureADUser -SearchString $samname | revoke-azureaduserallrefreshtoken
-
-    # blocks sign-in from this o365 account
-    Set-MsolUser -UserPrincipalName $samname -BlockCredential $true
 
 
-    # specifies the user that will be removed from these groups
-    $upn = get-aduser -Identity $samname | select -Property *
-
-    # looks through all the o365 groups (only DLs & Security groups) (not using it for now)
-    #$groups = get-msolgroup -all | where {($_.GroupType -notlike "MailEnabledSecurity") -and ($_.DisplayName -notlike "*Backup*")} | select -First 1
-    
-    # gets all the distribution groups within the tenant
-    $dgs = Get-DistributionGroup  | where Name -like "Signature Manager*" | select -Property *
-
-    # gets the mailbox properties for the user
-    $mail = Get-Mailbox -Identity $samname
-
-    foreach($dg in $dgs)
-
-    # gets the distribution group members of each distribution list
-
-    {
-
-    $DGMs = Get-DistributionGroupMember -identity $dg.DistinguishedName
-
-        foreach ($dgm in $DGMs)
-
-        { if ($dgm.name -eq $mail.Name){
-
-        Remove-DistributionGroupMember $dg.Name -Member $mail.UserPrincipalName -confirm:$false
-
-        } 
-        }
-        }
-
-    Write-Output "Converting the user's regular user mailbox to 'SHARED'......."
-
-    # converts the regular user mailbox to shared 
-    Set-Mailbox -Identity $samname -Type Shared
-
-    Write-Output "Successfully converted the user's mailbox to 'SHARED'."
-
-    # displays the changes
+   # displays the changes
     Get-Aduser -Identity $samname | Select-Object SamAccountName, Enabled, extensionAttribute15
 
 } Else {

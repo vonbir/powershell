@@ -1,5 +1,4 @@
-﻿# Connect to Office365 services 
-
+﻿
 $ErrorActionPreference = 'SilentlyContinue'
 $requiredModules = @("AzureAD", "MSOnline", "ExchangeOnlineManagement")
 
@@ -16,15 +15,15 @@ if (-not (Get-AzureADCurrentSessionInfo)) {
     Write-Host "Connecting to Azure AD" -ForegroundColor Yellow
     Connect-AzureAD 
 } else {
-    Write-Host "Already connected to Azure AD..." -ForegroundColor Yellow
+    Write-Host "Already connected to Azure AD...." -ForegroundColor Yellow
 }
 
 # Connect to Azure AD using the MSOnline module
-if (-not (Get-MsolAccountSku -ErrorAction SilentlyContnue)) {
+if (-not (Get-MsolAccountSku)) {
     Write-Host "Connecting to Azure AD using MsOnline Module" -ForegroundColor Yellow
     Connect-MsolService
 } else {
-    Write-Host "Already connected to the MsOnline Module...." -ForegroundColor Yellow
+    Write-Host "Already connected to the MSOnline Module...." -ForegroundColor Yellow
 }
 
 # Connect to Exchange Online
@@ -40,27 +39,34 @@ Param(
     [string]$upn
 )
 
-while ($upn) {
-    try {
-        $user = Get-MsolUser -UserPrincipalName $upn -ErrorAction Stop | Select-Object DisplayName, Title, Department, City, Office, StreetAddress, State, PhoneNumber, isLicensed, Licenses, ObjectID, userPrincipalName
+# pulls both the AD groups and AAD groups
 
-        $groups = Get-AzureADUserMembership -ObjectId $user.ObjectId | Where-Object {$_.ObjectType -eq "Group"}
+$user = get-azureaduser -ObjectId $upn
 
-        $user
-        $groups | Select-Object ObjectId, DisplayName, Description | Format-Table
+$adGroup = Get-ADPrincipalGroupMembership -Identity $user.UserPrincipalName
 
-        $retry = Read-Host "Would you like to enter another user? (Y/N)"
 
-        if ($retry -ne "Y") {
-            break
-        }
+$aadGroup = Get-AzureADUserMembership -ObjectId $User.ObjectId
 
-        $upn = Read-Host "Please enter the user's email"
-    }
-    catch {
-        Write-Host "Username does not exist, please try again." -ForegroundColor Yellow
-        $upn = Read-Host "Please enter the user's email"
+$Results = for ( $i = 0; $i -lt $max; $i++)
+{
+    Write-Verbose "$adGroup"
+    [PSCustomObject]@{
+        AD_Groups = $adGroup[$i]
+        #AAD_Groups = $lastName[$i]
+ 
     }
 }
+$Results
 
 
+
+Write-Host "AD Groups:"
+foreach ($group in $results.ADGroups) {
+    Write-Host $group.Name
+}
+
+Write-Host "`nAAD Groups:"
+foreach ($group in $results.AADGroups) {
+    Write-Host $group.DisplayName
+}
