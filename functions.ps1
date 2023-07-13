@@ -167,7 +167,7 @@ Import-Module -Name ActiveDirectory
 # domain admin credentials
 
 if (-not ($adminuser)){
-[string]$adminuser = Read-Host "Please enter your on-prem AD username (\GREATGULF\string)" 
+[string]$adminuser = Read-Host "Please enter your on-prem AD username (\GREATGULF\username)" 
 $adminpass = Read-Host "Please enter your on-prem AD password" -AsSecureString 
 $Cred = New-Object System.Management.Automation.PSCredential $adminuser,$adminpass
 }
@@ -278,7 +278,7 @@ Function Create-ADComputer {
     # domain admin credentials
 
     if (-not ($adminuser)){
-    [string]$adminuser = Read-Host "Please enter your on-prem AD username (\GREATGULF\string)" 
+    [string]$adminuser = Read-Host "Please enter your on-prem AD username (\GREATGULF\username)" 
     $adminpass = Read-Host "Please enter your on-prem AD password" -AsSecureString 
     $Cred = New-Object System.Management.Automation.PSCredential $adminuser,$adminpass
     }
