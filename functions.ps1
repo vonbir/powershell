@@ -59,11 +59,11 @@ Function Verify-UserExist {
         $groups = Get-AzureADUserMembership -ObjectId $user.ObjectId | Where-Object { $_.ObjectType -eq "Group" } | Select-Object DisplayName, Description
 
         Write-Host
-        Write-Host "USER DETAILS:" -ForegroundColor Yellow -BackgroundColor DarkRed
+        Write-Host "*USER DETAILS:" -ForegroundColor Yellow
         Write-Host
         $user | Out-String -Width 4096 | ForEach-Object { $_.Trim() }
         Write-Host
-        Write-Host "THIS USER BELONGS TO THESE AZURE GROUPS:" -ForegroundColor Yellow -BackgroundColor DarkRed
+        Write-Host "*THIS USER BELONGS TO THESE AZURE GROUPS:" -ForegroundColor Yellow
         $groups | Format-Table -AutoSize| Out-String -Width 4096
     } 
     catch {
@@ -150,7 +150,7 @@ Function Verify-UserTerminated {
     }
 }
 
-Function Create-NewUser {
+Function Create-ADNewUser {
     [CmdletBinding()]
     Param(
     )
@@ -328,6 +328,9 @@ Function Create-ADComputer {
         elseif ($CompanyGroup -eq "HCNB"){
         $computerPath = "OU=Computers,OU=HomeCAD,OU=Sites and Divisions,OU=Great Gulf Group,DC=greatgulf,DC=biz"
         }
+        elseif ($CompanyGroup -eq "FGNB"){
+        $computerPath = "OU=Computers,OU=FirstGulf,OU=Sites and Divisions,OU=Great Gulf Group,DC=greatgulf,DC=biz"
+        }
   else {
         Write-Host
         Write-Host "Computer object creation cancelled...." -ForegroundColor Red
@@ -349,3 +352,73 @@ Write-Host "Computer object creation has been cancelled..." -ForegroundColor Red
 Write-Host
 }
 }
+
+Function Run-MFACycle {
+
+    <# 
+        .DESCRIPTION
+
+        The Managed Folder Assistant (MFA) is an Exchange Mailbox Assistant that applies and processes the message retention settings
+        that are configured in retention policies.
+
+        Exchange Online Archiving can take up to 24 hours to begin archiving email out of the primary mailbox after it is enabled for a user in Microsoft 365. 
+        Other cause could be if the size of the mailbox in Exchange Online is less than 10 megabytes (MB). The retention policy runs automatically one time every 
+        seven days for mailboxes that are larger than 10 MB. However, the retention policy doesn’t automatically run for mailboxes that are smaller than 10 MB.
+
+        In some cases, you want to force the Managed Folder Assistant run immediately. MFA does not run immediately and will take some time to process.
+    #>
+
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory)]
+        [string]$email
+    )
+
+    # This runs the Start-ManagedFolderAssistant command to force the MFA runs on a single mailbox
+    
+    Write-Host 
+    Write-Host "Running the ManagedFolderAssistant cmdlet for the user: " -NoNewline; Write-Host "$email" -ForegroundColor Yellow
+    Write-Host
+    Write-Host "--------------"
+    Write-Host "----------------------------------"
+    Write-Host "---------------------------------------------"
+    Write-Host "-------------------------------------------------------"
+    Start-ManagedFolderAssistant -Identity $email -Verbose
+    Write-Host "-------------------------------------------------------"
+    Write-Host "---------------------------------------------"
+    Write-Host "----------------------------------"
+    Write-Host "--------------"
+    Write-Host
+    Write-Host "........PROCESSING DONE............" -ForegroundColor Yellow
+ 
+    # Checks the size of the mailbox of the $email user
+
+    $itemsize =  Get-MailboxStatistics -Identity $email | Select DisplayName,MailboxTypeDetail, IsValid, ItemCount, @{Name="totalItemSize";e={$_.TotalItemSize}}
+
+    # This block checks the lats time Managed Folder Assistant ran on the $email variable
+
+    $logProps = Export-MailboxDiagnosticLogs $email -ExtendedProperties
+    $xmlprops = [xml]($logProps.MailboxLog)
+    $LastProcessed = ($xmlprops.Properties.MailboxTable.Property | ? {$_.Name -like "*ELCLastSuccessTimestamp*"}).Value   
+    $ItemsDeleted  = $xmlprops.Properties.MailboxTable.Property | ? {$_.Name -like "*ElcLastRunDeletedFromRootItemCount*"}
+    
+    #creating a custom object to display all results
+    
+    $ReportLine = [PSCustomObject]@{
+        DisplayName = $itemsize.DisplayName
+        EmailAdress = $email
+        MailboxTypeDetail = $itemsize.MailboxTypeDetail
+        IsValid = $itemsize.IsValid
+        ItemCount = $itemsize.ItemCount
+        CurrentMailboxSize = $($itemsize.TotalItemSize)
+        MFA_LastProcessed = $LastProcessed
+        ItemsDeleted = $ItemsDeleted.Value
+        }
+
+    Write-Host "................................................."
+    Write-Host "......................................."
+    Write-Host
+    Write-Host "Here are the results: " -ForegroundColor Yellow -NoNewline
+    $ReportLine | Format-List 
+
+    }
