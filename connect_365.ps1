@@ -11,7 +11,7 @@ foreach ($module in $requiredModules) {
     }
 }
 
-$Color = @{Foregroundcolor = 'Yellow'; Backgroundcolor = 'Black'}
+$Color = @{Foregroundcolor = 'Blue'; Backgroundcolor = 'Yellow'}
 
 # Connect to Azure AD
 if (-not (Get-AzureADCurrentSessionInfo)) {

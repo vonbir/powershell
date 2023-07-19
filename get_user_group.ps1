@@ -13,7 +13,7 @@ foreach ($module in $requiredModules) {
 
 if (-not (Get-AzureADCurrentSessionInfo)) {
     Write-Host "Connecting to Azure AD" -ForegroundColor Yellow
-    Connect-AzureAD 
+    Connect-AzureAD
 } else {
     Write-Host "Already connected to Azure AD...." -ForegroundColor Yellow
 }
@@ -48,25 +48,28 @@ $adGroup = Get-ADPrincipalGroupMembership -Identity $user.UserPrincipalName
 
 $aadGroup = Get-AzureADUserMembership -ObjectId $User.ObjectId
 
-$Results = for ( $i = 0; $i -lt $max; $i++)
-{
+$Results = for ( $i = 0; $i -lt $max; $i++) {
     Write-Verbose "$adGroup"
     [PSCustomObject]@{
         AD_Groups = $adGroup[$i]
         #AAD_Groups = $lastName[$i]
- 
+
     }
 }
-$Results
 
 
-
-Write-Host "AD Groups:"
-foreach ($group in $results.ADGroups) {
-    Write-Host $group.Name
+$results = foreach ($group in $adGroup) {
+    [PSCustomObject]@{
+        ADGroup  = $group.Name -join ', '
+        AADGroup = ''
+    }
 }
 
-Write-Host "`nAAD Groups:"
-foreach ($group in $results.AADGroups) {
-    Write-Host $group.DisplayName
+foreach ($aadGroupItem in $aadGroup) {
+    $results += [PSCustomObject]@{
+
+        AADGroup = $aadGroupItem.DisplayName -join ', '
+    }
 }
+
+$results | Where-Object { $_.ADGroup -ne '' -or $_.AADGroup -ne '' }
