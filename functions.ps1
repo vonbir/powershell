@@ -148,7 +148,7 @@ Function Verify-UserExist {
         [string]$UserPrincipalName
     )
     try {
-        $user = Get-MsolUser -SearchString $UserPrincipalName | Select-Object DisplayName, Title, Department, City, Office, StreetAddress, State, PhoneNumber, isLicensed, Licenses, ObjectID, userPrincipalName, UserType, BlockCredential
+        $user = Get-MsolUser -SearchString $UserPrincipalName | Select-Object DisplayName, Title, Department, City, Office, StreetAddress, State, PhoneNumber, isLicensed, Licenses, ObjectID, userPrincipalName, UserType, BlockCredential, whenCreated
 
         $groups = Get-AzureADUserMembership -ObjectId $user.ObjectId | Where-Object { $_.ObjectType -eq "Group" } | Select-Object DisplayName, Description
 
@@ -311,7 +311,7 @@ Function Onboard-ADUser {
         }
 
         # Create user object
-        New-ADUser $SamAccountName @splatADUser -Path $containerDN -Credential $Cred -EmailAddress $useremail -UserPrincipalName $useremail -SamAccountName $SamAccountName -DisplayName $Name
+        New-ADUser $SamAccountName @splatADUser -Path $containerDN -Credential $Cred -EmailAddress $useremail -UserPrincipalName $useremail -SamAccountName $SamAccountName -DisplayName $Name -Name $Name
 
         $user = Get-ADUser -Identity $SamAccountName -Properties *
 
