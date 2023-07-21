@@ -1,4 +1,4 @@
-
+﻿
 # Check if modules are installed, and install if necessary
 
 $ErrorActionPreference = "SilentlyContinue"

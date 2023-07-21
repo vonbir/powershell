@@ -1,8 +1,8 @@
 ﻿
 
+# installs PowerShell 7
 
-
-
+iex "& { $(irm https://aka.ms/install-powershell.ps1) } -UseMSI"
 
 
 #Displays the free space of C: drive and also changing the property name, selecting freespace, and changing it to gigabytes as integer
