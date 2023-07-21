@@ -36,35 +36,3 @@ Write-Host $Greeting $Name
 
 .\parameters1.ps1 hello world
 
-
-
-```````````````````````````
-
-$array = "ali.reisman", "paul.chin", "cheryl.tolentino", "rommuel.gardon", "marilyn.mazzotta", "alex.heming", "lauren.west", "tehmina.athar"
-$logon = Import-Csv -Delimiter ';' -Path "C:\Users\brylle.purificacion\Downloads\Web50repNoAdLogonLast60d.csv"
-$customArray = @()
-
-# Iterate over each element in the original array
-foreach ($item in $array) {
-    # Create a custom object with the 'username' property
-    $customObject = [PSCustomObject]@{
-        username = $item
-    }
-
-    # Add the custom object to the new array
-    $customArray += $customObject
-}
-
-# iterates through the customArray and filters based on the username property of another array named '$logon'
-
-# the variable '$logon' is an array that contains multiple propreties that we plan to match.
-
-foreach ($object in $customArray) {
-    $matchingItem = $logon | Where-Object { $_.username -eq $object.username }
-
-    if ($matchingItem) {
-        Write-Host "Match found for item '$($object.username)':"
-        Write-Host "LastLogon: $($matchingItem.lastlogon)"
-        Write-Host
-    }
-}

@@ -41,14 +41,4 @@ $Params = @{
 
 $Status = Invoke-RestMethod @Params
 
-$status.asset | Select-Object name, @{n = "Quantity"; e = { $_.type_fields.quantity_16000332716 }; align = 'center' }, @{n = "AssetState"; e = { $_.type_fields.state_16000332716 } }, updated_at
-
-
-
-$reportObject = [PSCustomObject]@{
-    "Column1" = "Value1"
-    "Column2" = "Value2"
-    "Column3" = "Value3"
-}
-
-$report = $reportObject | ConvertTo-Csv -NoTypeInformation -Delimiter ","
+$status.asset | Select-Object name, @{n = "Quantity"; e = { $_.type_fields.quantity_16000332716 } }, @{n = "AssetState"; e = { $_.type_fields.state_16000332716 } }, updated_at
