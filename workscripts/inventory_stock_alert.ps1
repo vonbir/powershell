@@ -1,4 +1,4 @@
-﻿
+
 $APIKey = 'yXlSTOK9dxuazwqNl4A'
 $EncodedCredentials = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(('{0}:{1}' -f $APIKey, $null)))
 $HTTPHeaders = @{}
@@ -42,7 +42,7 @@ $h540 = $allassets | Where-Object { $_.Name -like "*Headset*" } | Select-Object 
 
 $JSON = [Ordered]@{
     "type"        = "message"
-    "summary"     = "THIS IS AN INVENTORY ALERT!! ~"
+    "summary"     = "Inventory Stock Update"
     "attachments" = @(
         @{
             "contentType" = "application/vnd.microsoft.card.adaptive"
@@ -51,7 +51,19 @@ $JSON = [Ordered]@{
                 "type"    = "AdaptiveCard"
                 "version" = "1.2"
                 "msteams" = @{"width" = "Full" }
-                "body"    = @(
+                "body"    = @(@{
+                        "type"                = "TextBlock"
+                        "text"                = "THE ASSETS CURRENTLY IN STOCK"
+                        "size"                = "Large"
+                        "weight"              = "Bolder"
+                        "color"               = "Blue"
+                        "fontType"            = "Default"
+                        "horizontalAlignment" = "Center"
+                        "highlight"           = $false
+                        "italic"              = $false
+                        "strikeThrough"       = $false
+                        "wrap"                = $true
+                    }
                     @{
                         "type"          = "TextBlock"
                         "text"          = "Updated as of: $(Get-Date)"
