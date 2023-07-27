@@ -53,11 +53,11 @@ $JSON = [Ordered]@{
                 "msteams" = @{"width" = "Full" }
                 "body"    = @(@{
                         "type"                = "TextBlock"
-                        "text"                = "THE ASSETS CURRENTLY IN STOCK"
+                        "text"                = "Assets Currently In Stock"
                         "size"                = "Large"
                         "weight"              = "Bolder"
                         "color"               = "Blue"
-                        "fontType"            = "Default"
+                        "fontType"            = "default"
                         "horizontalAlignment" = "Center"
                         "highlight"           = $false
                         "italic"              = $false
@@ -268,6 +268,56 @@ $JSON = [Ordered]@{
                                         "italic"              = $false
                                         "strikeThrough"       = $false
                                         "separator"           = $true
+                                    }
+                                )
+                            }
+                        )
+                    }
+                    @{
+                        "type"    = "ColumnSet"
+                        "columns" = @(
+                            @{
+                                "type"  = "Column"
+                                "width" = "stretch"
+                                "items" = @(
+                                    @{
+                                        "type"                = "TextBlock"
+                                        "text"                = ""
+                                        "horizontalAlignment" = "Center"
+                                        "weight"              = "Default"
+                                        "color"               = "Accent"
+                                    }
+                                )
+                            }
+                            @{
+                                "type"                 = "Column"
+                                "width"                = "auto"
+                                "horizontalallignment" = "center"
+                                "items"                = @(
+                                    @{
+                                        "type"    = "ActionSet"
+                                        "actions" = @(
+                                            @{
+                                                "type"  = "Action.OpenUrl"
+                                                "color" = "Warning"
+                                                "title" = "Freshservice Inventory Link"
+                                                "url"   = "https://greatgulfhelpdesk.freshservice.com/cmdb/items"
+
+                                            }
+                                        )
+                                    }
+                                )
+                            }
+                            @{
+                                "type"  = "Column"
+                                "width" = "stretch"
+                                "items" = @(
+                                    @{
+                                        "type"                = "TextBlock"
+                                        "text"                = ""
+                                        "horizontalAlignment" = "Center"
+                                        "weight"              = "Default"
+                                        "color"               = "Accent"
                                     }
                                 )
                             }
