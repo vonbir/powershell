@@ -42,7 +42,7 @@ $h540 = $allassets | Where-Object { $_.Name -like "*Headset*" } | Select-Object 
 
 $JSON = [Ordered]@{
     "type"        = "message"
-    "summary"     = "Inventory Stock Update"
+    "summary"     = "INVENTORY STOCK ALERT !!! ~"
     "attachments" = @(
         @{
             "contentType" = "application/vnd.microsoft.card.adaptive"

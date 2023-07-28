@@ -279,8 +279,8 @@ Function Onboard-ADUser {
             Enabled         = $true
         }
 
-        $SamAccountName = $($splatADUser.GivenName) + "." + $($splatADUser.Surname)
-        $Name = $($splatADUser.GivenName) + " " + $($splatADUser.Surname)
+        [string]$SamAccountName = $($splatADUser.GivenName) + "." + $($splatADUser.Surname)
+        [string]$Name = $($splatADUser.GivenName) + " " + $($splatADUser.Surname)
 
         [string]$containerInput = Read-Host ("Enter the container division for this user (GG,FG,THR,GBS,HT,DD)")
         $containerinput = $containerInput.ToUpper()
@@ -312,7 +312,7 @@ Function Onboard-ADUser {
         }
 
         # Create user object
-        New-ADUser $SamAccountName @splatADUser -Path $containerDN -Credential $Cred -EmailAddress $useremail -UserPrincipalName $useremail -SamAccountName $SamAccountName -DisplayName $Name -Name $Name
+        New-ADUser -Name $name @splatADUser -Path $containerDN -Credential $Cred -EmailAddress $useremail -UserPrincipalName $useremail -SamAccountName $SamAccountName -DisplayName $Name
 
         $user = Get-ADUser -Identity $SamAccountName -Properties *
 

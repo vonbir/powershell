@@ -1,5 +1,7 @@
 ﻿
-$APIKey = Import-Clixml -Path "C:\Users\brylle.purificacion\OneDrive - Great Gulf Group\Desktop\scripts\freshservice_api.xml"
+#$APIKey = Import-Clixml -Path "C:\Users\brylle.purificacion\OneDrive - Great Gulf Group\Desktop\scripts\freshservice_api.xml"
+
+$APIKey = 'yXlSTOK9dxuazwqNl4A'
 
 $EncodedCredentials = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(('{0}:{1}' -f $APIKey.String, $null)))
 $HTTPHeaders = @{}
