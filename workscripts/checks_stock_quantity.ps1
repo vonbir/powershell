@@ -95,11 +95,11 @@ try {
                         },
                         @{
                             "type"    = "ColumnSet"
-                            "columns" = $lowQuantityItems | ForEach-Object {
+                            "columns" = @(
                                 @{
                                     "type"  = "Column"
                                     "width" = "stretch"
-                                    "items" = @(
+                                    "items" = $lowQuantityItems | ForEach-Object {
                                         @{
                                             "type"                = "TextBlock"
                                             "text"                = "Asset"
@@ -114,7 +114,7 @@ try {
                                             "weight"              = "Bolder"
                                             "color"               = "Light"
                                         }
-                                    )
+                                    }
                                 }
                                 @{
                                     "type"  = "Column"
@@ -136,7 +136,7 @@ try {
                                         }
                                     )
                                 }
-                            }
+                            )
                         }
                     )
                 }
