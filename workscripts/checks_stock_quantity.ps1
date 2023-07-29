@@ -99,7 +99,7 @@ try {
                                 @{
                                     "type"  = "Column"
                                     "width" = "stretch"
-                                    "items" = $lowQuantityItems | ForEach-Object {
+                                    "items" = @(
                                         @{
                                             "type"                = "TextBlock"
                                             "text"                = "Asset"
@@ -107,14 +107,16 @@ try {
                                             "weight"              = "Bolder"
                                             "color"               = "Accent"
                                         }
-                                        @{
-                                            "type"                = "TextBlock"
-                                            "text"                = $_.AssetName
-                                            "horizontalAlignment" = "Center"
-                                            "weight"              = "Bolder"
-                                            "color"               = "Light"
+                                        $lowQuantityItems | ForEach-Object {
+                                            @{
+                                                "type"                = "TextBlock"
+                                                "text"                = $_.AssetName
+                                                "horizontalAlignment" = "Center"
+                                                "weight"              = "Bolder"
+                                                "color"               = "Light"
+                                            }
                                         }
-                                    }
+                                    )
                                 }
                                 @{
                                     "type"  = "Column"
@@ -127,12 +129,15 @@ try {
                                             "weight"              = "Bolder"
                                             "color"               = "Accent"
                                         }
-                                        @{
-                                            "type"                = "TextBlock"
-                                            "text"                = $_.Quantity
-                                            "horizontalAlignment" = "Center"
-                                            "weight"              = "Bolder"
-                                            "color"               = "Light"
+                                        $lowQuantityItems | ForEach-Object {
+                                            @{
+                                                "type"                = "TextBlock"
+                                                "text"                = $_.Quantity
+                                                "horizontalAlignment" = "Center"
+                                                "weight"              = "Bolder"
+                                                "color"               = "Light"
+                                                "subtle"              = "true"
+                                            }
                                         }
                                     )
                                 }
