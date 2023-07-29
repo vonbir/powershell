@@ -58,6 +58,7 @@ $array = @(
 
 foreach ($item in $array) {
     if ($item.Quantity -le 5) {
+
     }
 }
 
