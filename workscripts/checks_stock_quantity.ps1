@@ -63,7 +63,7 @@ try {
     }
     $JSON = @{
         "type"        = "message"
-        "summary"     = "LOW QUANTITY ALERT ‼"
+        "summary"     = "Low Quantity Asset Alert!!~"
         "attachments" = @(
             @{
                 "contentType" = "application/vnd.microsoft.card.adaptive"
@@ -73,21 +73,68 @@ try {
                     "version" = "1.2"
                     "body"    = @(
                         @{
-                            "type"  = "TextBlock"
-                            "text"  = "The following items are LOW in stock:"
-                            "wrap"  = $true
-                            "style" = "heading"
+                            "type"          = "TextBlock"
+                            "text"          = "Updated as of: $(Get-Date)"
+                            "size"          = "Medium"
+                            "weight"        = "Bolder"
+                            "color"         = "Good"
+                            "fontType"      = "Monospace"
+                            "highlight"     = $false
+                            "italic"        = $false
+                            "strikeThrough" = $false
+                            "wrap"          = $true
+                        }
+                        @{
+                            "type"   = "TextBlock"
+                            "text"   = "The following assets are LOW in stock:"
+                            "weight" = "Bolder"
+                            "wrap"   = $true
+                            "style"  = "heading"
+                            "size"   = "medium"
+                            "color"  = "Warning"
                         },
                         @{
-                            "type"  = "FactSet"
-                            "facts" = $lowQuantityItems | ForEach-Object {
+                            "type"    = "ColumnSet"
+                            "columns" = $lowQuantityItems | ForEach-Object {
                                 @{
-                                    "title" = "Asset Name:"
-                                    "value" = $_.AssetName
+                                    "type"  = "Column"
+                                    "width" = "stretch"
+                                    "items" = @(
+                                        @{
+                                            "type"                = "TextBlock"
+                                            "text"                = "Asset"
+                                            "horizontalAlignment" = "Center"
+                                            "weight"              = "Bolder"
+                                            "color"               = "Accent"
+                                        }
+                                        @{
+                                            "type"                = "TextBlock"
+                                            "text"                = $_.AssetName
+                                            "horizontalAlignment" = "Center"
+                                            "weight"              = "Bolder"
+                                            "color"               = "Light"
+                                        }
+                                    )
                                 }
                                 @{
-                                    "title" = "Quantity:"
-                                    "value" = $_.Quantity
+                                    "type"  = "Column"
+                                    "width" = "stretch"
+                                    "items" = @(
+                                        @{
+                                            "type"                = "TextBlock"
+                                            "text"                = "Quantity"
+                                            "horizontalAlignment" = "Center"
+                                            "weight"              = "Bolder"
+                                            "color"               = "Accent"
+                                        }
+                                        @{
+                                            "type"                = "TextBlock"
+                                            "text"                = $_.Quantity
+                                            "horizontalAlignment" = "Center"
+                                            "weight"              = "Bolder"
+                                            "color"               = "Light"
+                                        }
+                                    )
                                 }
                             }
                         }

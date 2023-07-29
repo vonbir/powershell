@@ -300,7 +300,7 @@ $JSON = [Ordered]@{
                                             @{
                                                 "type"  = "Action.OpenUrl"
                                                 "color" = "Warning"
-                                                "title" = "Freshservice Inventory Link"
+                                                "title" = "FreshService Inventory Link"
                                                 "url"   = "https://greatgulfhelpdesk.freshservice.com/cmdb/items"
 
                                             }
