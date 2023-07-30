@@ -2,12 +2,12 @@
 
 # installs PowerShell 7
 
-iex "& { $(irm https://aka.ms/install-powershell.ps1) } -UseMSI"
+Invoke-Expression "& { $(Invoke-RestMethod https://aka.ms/install-powershell.ps1) } -UseMSI"
 
 
 #Displays the free space of C: drive and also changing the property name, selecting freespace, and changing it to gigabytes as integer
 
-Get-WMIObject win32_logicaldisk -filter "DeviceID='c:'" | select @{n='freegb' ;e={$_.freespace / 1gb -as [int]}}
+Get-WmiObject win32_logicaldisk -Filter "DeviceID='c:'" | Select-Object @{n = 'freegb' ; e = { $_.freespace / 1gb -as [int] } }
 
 
 #Adds user into the domain
@@ -25,11 +25,10 @@ $isAdmin = [System.Security.Principal.WindowsPrincipal]::new(
     [System.Security.Principal.WindowsIdentity]::GetCurrent()
 ).IsInRole('Administrators')
 
-if(-not $isAdmin)
-{
+if (-not $isAdmin) {
     $params = @{
-        FilePath = 'powershell' # or pwsh if Core
-        Verb = 'RunAs'
+        FilePath     = 'powershell' # or pwsh if Core
+        Verb         = 'RunAs'
         ArgumentList = @(
             "-NoExit"
             "-ExecutionPolicy ByPass"

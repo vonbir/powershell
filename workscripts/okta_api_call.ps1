@@ -1,4 +1,4 @@
-﻿Function getHTML {
+﻿Function get-HTML {
     Param (
         [Parameter(Mandatory = $true)]  [String]$uri, # always need to pass in a URI for the API call
         [Parameter(Mandatory = $false)] [String]$method = "GET", # default is GET, can also be POST, DELETE etc. etc.
@@ -8,7 +8,7 @@
     Begin {
         # headers needed to be passed in.  Authorization is the API token created in Okta and you're limited to its permissions
         $headers = @{}
-        $headers["Authorization"] = "SSWS 00dfjaojf84j-jdfo9hjd94h987gfhDHNDdj638hd"
+        $headers["Authorization"] = "SSWS 00T1je3pnbgZRj2e02p7"
         #$headers["Authorization"] = "SSWS **** INSERT TOKEN HERE ****"  See next line for how it should look
         #$headers["Authorization"] = "SSWS 00dfjaojf84j-jdfo9hjd94h987gfhDHNDdj638hd"
         $headers["Accept"] = "application/json"

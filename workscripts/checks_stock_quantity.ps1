@@ -63,7 +63,7 @@ try {
     }
     $JSON = @{
         "type"        = "message"
-        "summary"     = "Low Quantity Asset Alert!!~"
+        "summary"     = "LOW QUALITY ASSET ALERT!!! ~"
         "attachments" = @(
             @{
                 "contentType" = "application/vnd.microsoft.card.adaptive"
@@ -74,8 +74,8 @@ try {
                     "body"    = @(
                         @{
                             "type"          = "TextBlock"
-                            "text"          = "Updated as of: $(Get-Date)"
-                            "size"          = "Medium"
+                            "text"          = "Updated as of: $(Get-Date -Format "dddd, yyyy/MM/dd")"
+                            "size"          = "Small"
                             "weight"        = "Bolder"
                             "color"         = "Good"
                             "fontType"      = "Monospace"
@@ -90,7 +90,7 @@ try {
                             "weight" = "Bolder"
                             "wrap"   = $true
                             "style"  = "heading"
-                            "size"   = "medium"
+                            "size"   = "Large"
                             "color"  = "Warning"
                         },
                         @{
