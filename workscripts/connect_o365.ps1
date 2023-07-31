@@ -1,8 +1,10 @@
 ﻿# Check if modules are installed, and install if necessary
 
 $ErrorActionPreference = "SilentlyContinue"
-$Color = @{Foregroundcolor = 'Yellow' }
+
+# Check if modules are installed and install if necessary
 $requiredModules = @("AzureAD", "MSOnline", "ExchangeOnlineManagement")
+$ErrorActionPreference = 'SilentlyContinue'
 
 foreach ($module in $requiredModules) {
     if (-not (Get-Module -ListAvailable -Name $module)) {
@@ -11,38 +13,33 @@ foreach ($module in $requiredModules) {
     }
 }
 
-try {
-    # Connect to Azure AD
-    if (-not (Get-AzureADCurrentSessionInfo)) {
-        Write-Host "Connecting to Azure AD....." @Color
-        Connect-AzureAD
-        Write-Host "Already connected to Azure AD......" @Color
-    } else {
-        Write-Host "Already connected to Azure AD......" @Color
-    }
-
-    # Connect to Azure AD using the MSOnline module
-    if (-not (Get-MsolAccountSku)) {
-        Write-Host "Connecting to Azure AD using MSOnline module....." @Color
-        Connect-MsolService
-        Write-Host "Already connected to Azure AD using MSOnline module......." @Color
-    } else {
-        Write-Host "Already connected to Azure AD using MSOnline module......." @Color
-    }
-
-    # Connect to Exchange Online
-    if (-not (Get-PSSession | Select-Object -Property Name -First 1 | Where-Object { $_.Name -eq "ExchangeOnline*" })) {
-        Write-Host "Connecting to Exchange Online....." @Color
-        Connect-ExchangeOnline
-        Write-Host "Already connected to Exchange Online......." @Color
-    } else {
-        Write-Host "Already connected to Exchange Online......." @Color
-    }
-} catch {
-    Write-Host "Something unexpected happened. Please try running it again..." -ForegroundColor Red
+# Connect to Azure AD
+$TestAzureADConnection = Get-AzureADCurrentSessionInfo
+if (-not ($TestAzureADConnection)) {
+    Write-Host "Connecting to Azure AD..." -ForegroundColor DarkYellow
+    Connect-AzureAD
+    Write-Host "Successfully connected to AzureAD..." -ForegroundColor Yellow
+} else {
+    Write-Host "Successfully connected to Azure AD..." -ForegroundColor Yellow
 }
-With this modification, the script should run without errors and perform the necessary module installations and connections to Azure AD and Exchange Online as intended.
 
+# Connect to Azure AD using the MSOnline module
+if (-not (Get-MsolAccountSku)) {
+    Write-Host "Connecting to the MSOnline module..."
+    Connect-MsolService
+    Write-Host "Successfully connected to the MSOnline module." -ForegroundColor Yellow
+} else {
+    Write-Host "Successfully connected to the MSOnline module." -ForegroundColor Yellow
+}
+
+# Connect to Exchange Online
+if (-not (Get-PSSession | Select-Object -Property Name -First 1 | Where-Object { $_.Name -eq "ExchangeOnline*" })) {
+    Write-Host "Connecting to Exchange Online..."
+    Connect-ExchangeOnline
+    Write-Host "Successfully connected to Exchange Online." -ForegroundColor Yellow
+} else {
+    Write-Host "Successfully connected to Exchange Online." -ForegroundColor Yellow
+}
 
 
 

@@ -1,4 +1,6 @@
 ﻿
+# -File C:\Users\brylle.purificacion\powershell\workscripts\inventory_stock_alert.ps1 -ExecutionPolicy Bypass -NoProfile -NonInteractive
+
 $APIKey = 'yXlSTOK9dxuazwqNl4A'
 $EncodedCredentials = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(('{0}:{1}' -f $APIKey, $null)))
 $HTTPHeaders = @{}
@@ -35,6 +37,7 @@ $t16 = $stock | Where-Object { $_.Name -like "*T16*" }
 $t14 = $stock | Where-Object { $_.Name -like "*T14*" }
 $x1nano = $stock | Where-Object { $_.Name -like "*Nano*" }
 $x1carbon = $stock | Where-Object { $_.Name -like "*Carbon*" }
+$desktops = $stock | Where-Object { $_.Name -like "*ThinkCentre*" }
 $dock = $stock | Where-Object { $_.Name -like "*Dock*" }
 $phones = $stock | Where-Object { $_.Name -like "Apple*" }
 $mk320 = $allassets | Where-Object { $_.Name -like "*M&K*" } | Select-Object $_.type_fields.quantity_16000332716
@@ -54,7 +57,7 @@ $JSON = [Ordered]@{
                 "body"    = @(@{
                         "type"                = "TextBlock"
                         "text"                = "Assets Currently In Stock"
-                        "size"                = "Large"
+                        "size"                = "extraLarge"
                         "weight"              = "Bolder"
                         "color"               = "Blue"
                         "fontType"            = "default"
@@ -126,6 +129,16 @@ $JSON = [Ordered]@{
                                     @{
                                         "type"                = "TextBlock"
                                         "text"                = "x1 Carbon Laptops"
+                                        "horizontalAlignment" = "Center"
+                                        "size"                = "Medium"
+                                        "highlight"           = $false
+                                        "italic"              = $false
+                                        "strikeThrough"       = $false
+                                        "separator"           = $true
+                                    }
+                                    @{
+                                        "type"                = "TextBlock"
+                                        "text"                = "ThinkCentre Desktops"
                                         "horizontalAlignment" = "Center"
                                         "size"                = "Medium"
                                         "highlight"           = $false
@@ -222,6 +235,16 @@ $JSON = [Ordered]@{
                                     @{
                                         "type"                = "TextBlock"
                                         "text"                = "$($x1carbon.Count)"
+                                        "horizontalAlignment" = "Center"
+                                        "size"                = "Medium"
+                                        "highlight"           = $false
+                                        "italic"              = $false
+                                        "strikeThrough"       = $false
+                                        "separator"           = $true
+                                    },
+                                    @{
+                                        "type"                = "TextBlock"
+                                        "text"                = "$($desktops.Count)"
                                         "horizontalAlignment" = "Center"
                                         "size"                = "Medium"
                                         "highlight"           = $false

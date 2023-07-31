@@ -1,4 +1,6 @@
 ﻿﻿
+# -File C:\Users\brylle.purificacion\powershell\workscripts\inventory_stock_alert.ps1 -ExecutionPolicy Bypass -NoProfile -NonInteractive
+
 $APIKey = 'yXlSTOK9dxuazwqNl4A'
 $EncodedCredentials = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(('{0}:{1}' -f $APIKey, $null)))
 $HTTPHeaders = @{}
@@ -63,7 +65,7 @@ try {
     }
     $JSON = @{
         "type"        = "message"
-        "summary"     = "LOW QUALITY ASSET ALERT!!! ~"
+        "summary"     = "LOW QUANTITY ALERT ‼"
         "attachments" = @(
             @{
                 "contentType" = "application/vnd.microsoft.card.adaptive"
@@ -73,44 +75,44 @@ try {
                     "version" = "1.2"
                     "body"    = @(
                         @{
-                            "type"          = "TextBlock"
-                            "text"          = "Updated as of: $(Get-Date -Format "dddd, yyyy/MM/dd")"
-                            "size"          = "Small"
-                            "weight"        = "Bolder"
-                            "color"         = "Good"
-                            "fontType"      = "Monospace"
-                            "highlight"     = $false
-                            "italic"        = $false
-                            "strikeThrough" = $false
-                            "wrap"          = $true
-                        }
-                        @{
-                            "type"   = "TextBlock"
-                            "text"   = "The following assets are LOW in stock:"
-                            "weight" = "Bolder"
-                            "wrap"   = $true
-                            "style"  = "heading"
-                            "size"   = "Large"
-                            "color"  = "Warning"
+                            "type"  = "TextBlock"
+                            "text"  = "The following items are LOW in stock:"
+                            "wrap"  = $true
+                            "style" = "heading"
                         },
                         @{
-                            "type"    = "ColumnSet"
-                            "columns" = @(
+                            "type"  = "FactSet"
+                            "facts" = $lowQuantityItems | ForEach-Object {
                                 @{
-                                    "type"  = "Column"
-                                    "width" = "stretch"
-                                    "items" = @(
-                                        @{
-                                            "type"                = "TextBlock"
-                                            "text"                = "Asset"
-                                            "horizontalAlignment" = "Center"
-                                            "weight"              = "Bolder"
-                                            "color"               = "Accent"
-                                        }
-                                        $lowQuantityItems | ForEach-Object {
-                                            @{
-                                                "type"                = "TextBlock"
-                                                "text"                = $_.AssetName
+                                    "title" = "Asset Name:"
+                                    "value" = $_.AssetName
+                                }
+                                @{
+                                    "title" = "Quantity:"
+                                    "value" = $_.Quantity
+                                }
+                            }
+                        }
+                    )
+                }
+            }
+        )
+    } | ConvertTo-Json -Depth 20
+} catch {
+    Write-Host "Something unexpected happened. Please try again later."
+}
+
+$parameters = @{
+    "URI"         = "https://greatbuildersolutions.webhook.office.com/webhookb2/cec7e207-dcbe-46af-ab09-0fada3fa2281@6b152703-09ac-40ef-87cb-89f5be3bb6aa/IncomingWebhook/fd524be7c9e44c22b080dc599908d4c0/a258c296-5ad3-49a6-91cf-b271bd53fb2d"
+    "Method"      = "POST"
+    "Body"        = $JSON
+    "ContentType" = "application/json"
+}
+
+Invoke-RestMethod @parameters
+
+
+
                                                 "horizontalAlignment" = "Center"
                                                 "weight"              = "Bolder"
                                                 "color"               = "Light"
