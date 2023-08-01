@@ -1,7 +1,8 @@
 ﻿
 # -File C:\Users\brylle.purificacion\powershell\workscripts\inventory_stock_alert.ps1 -ExecutionPolicy Bypass -NoProfile -NonInteractive
 
-$APIKey = 'yXlSTOK9dxuazwqNl4A'
+$APIKey = Import-Clixml -Path "C:\Users\brylle.purificacion\apikey.txt"
+
 $EncodedCredentials = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(('{0}:{1}' -f $APIKey, $null)))
 $HTTPHeaders = @{}
 $HTTPHeaders.Add('Authorization', ('Basic {0}' -f $EncodedCredentials))
@@ -54,7 +55,8 @@ $JSON = [Ordered]@{
                 "type"    = "AdaptiveCard"
                 "version" = "1.2"
                 "msteams" = @{"width" = "Full" }
-                "body"    = @(@{
+                "body"    = @(
+                    @{
                         "type"                = "TextBlock"
                         "text"                = "Assets Currently In Stock"
                         "size"                = "extraLarge"
