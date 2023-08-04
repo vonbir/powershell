@@ -1,7 +1,8 @@
 ﻿
 # -File C:\Users\brylle.purificacion\powershell\workscripts\inventory_stock_alert.ps1 -ExecutionPolicy Bypass -NoProfile -NonInteractive
 
-$APIKey = 'yXlSTOK9dxuazwqNl4A'
+$APIKey = Import-Clixml -Path "C:\Users\brylle.purificacion\apikey.txt"
+
 $EncodedCredentials = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(('{0}:{1}' -f $APIKey, $null)))
 $HTTPHeaders = @{}
 $HTTPHeaders.Add('Authorization', ('Basic {0}' -f $EncodedCredentials))
@@ -33,12 +34,13 @@ try {
 
 $stock = $allAssets | Where-Object { $_.type_fields.asset_state_16000332715 -eq "In Stock" } ## pulls all assets in stock
 
-$t16 = $stock | Where-Object { $_.Name -like "*T16*" }
-$t14 = $stock | Where-Object { $_.Name -like "*T14*" }
-$x1nano = $stock | Where-Object { $_.Name -like "*Nano*" }
-$x1carbon = $stock | Where-Object { $_.Name -like "*Carbon*" }
-$desktops = $stock | Where-Object { $_.Name -like "*ThinkCentre*" }
-$dock = $stock | Where-Object { $_.Name -like "*Dock*" }
+$t16 = $stock | Where-Object { $_.Name -like "*T16 Gen 1*" }
+$t14 = $stock | Where-Object { $_.Name -like "*T14 Gen 3*" }
+$x1nano = $stock | Where-Object { $_.Name -like "*X1 Nano Gen 1*" }
+$x1carbon = $stock | Where-Object { $_.Name -like "*x1 Carbon Gen 10*" }
+$desktops = $stock | Where-Object { $_.Name -like "*ThinkCentre M90q Gen3*" }
+$monitors = $stock | Where-Object { $_.Name -like "T27h-20" }
+$dock = $stock | Where-Object { $_.Name -like "*Thinkpad Thunderbolt 4 Dock*" }
 $phones = $stock | Where-Object { $_.Name -like "Apple*" }
 $mk320 = $allassets | Where-Object { $_.Name -like "*M&K*" } | Select-Object $_.type_fields.quantity_16000332716
 $h540 = $allassets | Where-Object { $_.Name -like "*Headset*" } | Select-Object $_.type_fields.quantity_16000332716
@@ -54,7 +56,8 @@ $JSON = [Ordered]@{
                 "type"    = "AdaptiveCard"
                 "version" = "1.2"
                 "msteams" = @{"width" = "Full" }
-                "body"    = @(@{
+                "body"    = @(
+                    @{
                         "type"                = "TextBlock"
                         "text"                = "Assets Currently In Stock"
                         "size"                = "extraLarge"
@@ -98,7 +101,7 @@ $JSON = [Ordered]@{
                                     }
                                     @{
                                         "type"                = "TextBlock"
-                                        "text"                = "T16 Laptops"
+                                        "text"                = "ThinkPad T16 Gen 1"
                                         "horizontalAlignment" = "Center"
                                         "size"                = "Medium"
                                         "highlight"           = $false
@@ -108,7 +111,7 @@ $JSON = [Ordered]@{
                                     }
                                     @{
                                         "type"                = "TextBlock"
-                                        "text"                = "T14 Laptops"
+                                        "text"                = "ThinkPad T14 Gen 3"
                                         "horizontalAlignment" = "Center"
                                         "size"                = "Medium"
                                         "highlight"           = $false
@@ -118,7 +121,7 @@ $JSON = [Ordered]@{
                                     }
                                     @{
                                         "type"                = "TextBlock"
-                                        "text"                = "x1 Nano Laptops"
+                                        "text"                = "x1 Nano Gen 1"
                                         "horizontalAlignment" = "Center"
                                         "size"                = "Medium"
                                         "highlight"           = $false
@@ -128,7 +131,7 @@ $JSON = [Ordered]@{
                                     }
                                     @{
                                         "type"                = "TextBlock"
-                                        "text"                = "x1 Carbon Laptops"
+                                        "text"                = "x1 Carbon Gen 10"
                                         "horizontalAlignment" = "Center"
                                         "size"                = "Medium"
                                         "highlight"           = $false
@@ -138,7 +141,7 @@ $JSON = [Ordered]@{
                                     }
                                     @{
                                         "type"                = "TextBlock"
-                                        "text"                = "ThinkCentre Desktops"
+                                        "text"                = "ThinkCentre M90q Gen3"
                                         "horizontalAlignment" = "Center"
                                         "size"                = "Medium"
                                         "highlight"           = $false
@@ -148,7 +151,17 @@ $JSON = [Ordered]@{
                                     }
                                     @{
                                         "type"                = "TextBlock"
-                                        "text"                = "Docking Stations"
+                                        "text"                = "ThinkVision T27h-20"
+                                        "horizontalAlignment" = "Center"
+                                        "size"                = "Medium"
+                                        "highlight"           = $false
+                                        "italic"              = $false
+                                        "strikeThrough"       = $false
+                                        "separator"           = $true
+                                    }
+                                    @{
+                                        "type"                = "TextBlock"
+                                        "text"                = "ThinkPad Thunderbolt 4 Docks"
                                         "horizontalAlignment" = "Center"
                                         "size"                = "Medium"
                                         "highlight"           = $false
@@ -254,6 +267,16 @@ $JSON = [Ordered]@{
                                     },
                                     @{
                                         "type"                = "TextBlock"
+                                        "text"                = "$($monitors.Count)"
+                                        "horizontalAlignment" = "Center"
+                                        "size"                = "Medium"
+                                        "highlight"           = $false
+                                        "italic"              = $false
+                                        "strikeThrough"       = $false
+                                        "separator"           = $true
+                                    },
+                                    @{
+                                        "type"                = "TextBlock"
                                         "text"                = "$($dock.Count)"
                                         "horizontalAlignment" = "Center"
                                         "size"                = "Medium"
@@ -325,7 +348,6 @@ $JSON = [Ordered]@{
                                                 "color" = "Warning"
                                                 "title" = "FreshService Inventory Link"
                                                 "url"   = "https://greatgulfhelpdesk.freshservice.com/cmdb/items"
-
                                             }
                                         )
                                     }
@@ -353,7 +375,7 @@ $JSON = [Ordered]@{
 } | ConvertTo-Json -Depth 20
 
 $parameters = @{
-    "URI"         = "https://greatbuildersolutions.webhook.office.com/webhookb2/cec7e207-dcbe-46af-ab09-0fada3fa2281@6b152703-09ac-40ef-87cb-89f5be3bb6aa/IncomingWebhook/fd524be7c9e44c22b080dc599908d4c0/a258c296-5ad3-49a6-91cf-b271bd53fb2d"
+    "URI"         = "https://greatbuildersolutions.webhook.office.com/webhookb2/1386cb5b-c516-43d4-b5db-a49fc389e971@6b152703-09ac-40ef-87cb-89f5be3bb6aa/IncomingWebhook/832225d99dac4323959b3f40e64b4900/a258c296-5ad3-49a6-91cf-b271bd53fb2d"
     "Method"      = "POST"
     "Body"        = $JSON
     "ContentType" = "application/json"
