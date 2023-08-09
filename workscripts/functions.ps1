@@ -175,6 +175,8 @@ Function Verify-UserTerminated {
                 blockedCredential = $_.BlockCredential
                 objectID          = $_.ObjectID
                 UserPrincipalName = $_.UserPrincipalName
+                isLicensed        = $_.isLicensed
+                Licenses          = $_.Licenses
             }
         }
 
@@ -230,6 +232,8 @@ Function Verify-UserTerminated {
             Department                = $AzureADUser.Department
             CompanyName               = $AzureADUser.CompanyName
             o365_groups               = $groups.DisplayName
+            isLicensed                = $user.isLicensed
+            Licenses                  = $user.Licenses
             msexchHideFromAddressBook = $mailbox.msexchHideFromAddressBook
             blockedCredential         = $user.blockedCredential
             EmailForwardingStatus     = $mailbox.EmailForwardingStatus
@@ -319,21 +323,26 @@ Function Onboard-ADUser {
         # Set extension attributes
         if ($extensionAttribute14 -eq "AADSyncTrue") {
             Set-ADUser -Identity $user.DistinguishedName -Add @{extensionAttribute1 = $extensionAttribute1; extensionAttribute2 = $extensionAttribute2; extensionAttribute10 = $extensionAttribute10; extensionAttribute14 = $extensionAttribute14 } -Credential $Cred -Title $splatADUser.Description -Department $splatADUser.Department `
-                -StreetAddress "351 King Street East, 13th Floor, Suite 1300" -City "Toronto" -PostalCode "M5A 0L6" -Country CA
+                -StreetAddress "351 King Street East, 13th Floor, Suite 1300" -City "Toronto" -PostalCode "M5A 0L6" -Country CA -State ON
         } else {
             Set-ADUser -Identity $user.DistinguishedName -Add @{extensionAttribute1 = $extensionAttribute1; extensionAttribute10 = $extensionAttribute10; extensionAttribute14 = $extensionAttribute14 } -Clear extensionAttribute2 -Credential $cred -Title $splatADUser.Description -Department $splatADUser.Department `
-                -StreetAddress "351 King Street East, 13th Floor, Suite 1300" -City "Toronto" -PostalCode "M5A 0L6" -Country CA
+                -StreetAddress "351 King Street East, 13th Floor, Suite 1300" -City "Toronto" -PostalCode "M5A 0L6" -Country CA -State ON
         }
 
         # Output the created user details
         Write-Host
         Write-Host -ForegroundColor Yellow "The user has been created successfully!"
         Write-Host
-        Write-Host "Username: " -NoNewline; Write-Host -ForegroundColor Yellow "Username: $SamAccountName"
+        Write-Host "Username: " -NoNewline; Write-Host -ForegroundColor Yellow "$($user.SamAccountName)"
+        Write-Host "DisplayName: " -NoNewline; Write-Host -ForegroundColor Yellow "$($user.DisplayName)"
+        Write-Host "EmailAddress: " -NoNewline; Write-Host -ForegroundColor Yellow "$($user.EmailAddress)"
+        Write-Host "Title: " -NoNewline; Write-Host -ForegroundColor Yellow "$($user.title)"
         Write-Host "ExtensionAttribute1: " -NoNewline; Write-Host -ForegroundColor Yellow "$extensionAttribute1"
         Write-Host "ExtensionAttribute2: " -NoNewline; Write-Host -ForegroundColor Yellow "$extensionAttribute2"
         Write-Host "ExtensionAttribute10: " -NoNewline; Write-Host -ForegroundColor Yellow "$extensionAttribute10"
         Write-Host "ExtensionAttribute14: " -NoNewline; Write-Host -ForegroundColor Yellow "$extensionAttribute14"
+        Write-Host "ExtensionAttribute14: " -NoNewline; Write-Host -ForegroundColor Yellow "$extensionAttribute14"
+        Write-Host "Enabled: " -NoNewline; Write-Host -ForegroundColor Yellow "$($user.Enabled)"
         Write-Host
     } Catch {
         Write-Host
@@ -378,6 +387,11 @@ Function Offboard-ADUser {
             Write-Host "--------------------------------------"
             Write-Host "Successfully disabled the user: $samname" -ForegroundColor Green
 
+            # pulls all user info
+            $adDetails = Get-ADUser -Identity $samname -Properties *
+            $o365Details = Get-MsolUser -SearchString $samname
+            $exchangeDetails = Get-Mailbox -Identity $samname
+
             # removes all AD groups
             Get-ADUser -Identity $samname -Properties MemberOf | ForEach-Object {
 
@@ -392,24 +406,19 @@ Function Offboard-ADUser {
 
             # hides the user from the global adddress book
             Set-ADUser -Identity $samname -Add @{msExchHideFromAddressLists = $true } -Credential $Cred
-            Write-Host "The msExchHideFromAddressLists attribute has been set to: $($samname.msExchHideFromAddressLists)" -ForegroundColor Green
+            Write-Host "The msExchHideFromAddressLists attribute has been set to: 'TRUE'" -ForegroundColor Green
 
             # initiate sign-out of all office 365 sessions by revoking the refresh tokens issue to applications for a use
             Get-AzureADUser -SearchString $samname | revoke-azureaduserallrefreshtoken
             Write-Host "Successfully initiated sign-out of all o365 sessions for this user.." -ForegroundColor Green
 
             # blocks sign-in from this o365 account
-            Set-MsolUser -UserPrincipalName $samname -BlockCredential $true
+            set-msoluser -ObjectId $o365Details.ObjectId -BlockCredential $true
             Write-Host "Successfully blocked all the sign-ins from this o365 account.." -ForegroundColor Green
 
             # converts the regular user mailbox to shared
             Set-Mailbox -Identity $samname -Type Shared
             Write-Host "Successfully converted the user's mailbox to 'SHARED'." -ForegroundColor Green
-
-            # pulls all user info
-            $adDetails = Get-ADUser -Identity $samname -Properties *
-            $o365Details = Get-MsolUser -SearchString $samname
-            $exchangeDetails = Get-Mailbox -Identity $samname
 
             # creates a customobject for to display such changes
             $results = [pscustomobject][ordered] @{
@@ -459,7 +468,7 @@ Function Create-ADComputer {
     # domain admin credentials
 
     if (-not ($adminuser)) {
-        [string]$adminuser = Read-Host "Please enter your on-prem AD username (\GREATGULF\username)"
+        [string]$adminuser = Read-Host "Please enter your on-prem AD username (GREATGULF\username)"
         $adminpass = Read-Host "Please enter your on-prem AD password" -AsSecureString
         $Cred = New-Object System.Management.Automation.PSCredential $adminuser, $adminpass
     }
@@ -594,6 +603,48 @@ Function Run-MFACycle {
     $ReportLine | Format-List
 
 }
+Function Set-EmailForwarding {
+
+    <#
+        .SYNOPSIS
+        Enables email forwarding for a user's mailbox.
+
+        .DESCRIPTION
+        This function enables email forwarding for the specified user's mailbox and sets the forwarding address.
+
+        .PARAMETER EmailAddress
+        The email address of the user.
+
+        .PARAMETER ForwardingAddress
+        The email address to which emails will be forwarded.
+
+        .EXAMPLE
+        Set-EmailForwarding -EmailAddress user@example.com -ForwardingAddress forwarding@example.com
+    #>
+
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory)]
+        [string]$EmailAddress,
+        [string]$ForwardingAddress
+    )
+    try {
+        if ($EmailAddress) {
+            Write-Host "The user: " -NoNewline
+            Write-Host "'$EmailAddress'" -ForegroundColor Yellow -NoNewline
+            Write-Host " has been found..."
+            Set-Mailbox -Identity $EmailAddress -DeliverToMailboxAndForward $true -ForwardingAddress $ForwardingAddress
+            Start-Sleep -Seconds 2
+            Write-Host "Email forwarding has been successfully enabled for this user..." -ForegroundColor Yellow
+            Write-Host "The forwarding address for $EmailAddress's mailbox has been set to $ForwardingAddress" -ForegroundColor Green
+        } else {
+            Write-Host "The user does not exist, please try again later.." -ForegroundColor Red
+        }
+    } catch {
+        Write-Error "An error occurred: $($_.Exception.Message)"
+    }
+}
+
 
 
 

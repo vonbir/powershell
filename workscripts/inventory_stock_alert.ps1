@@ -34,16 +34,16 @@ try {
 
 $stock = $allAssets | Where-Object { $_.type_fields.asset_state_16000332715 -eq "In Stock" } ## pulls all assets in stock
 
-$t16 = $stock | Where-Object { $_.Name -like "*T16 Gen 1*" }
-$t14 = $stock | Where-Object { $_.Name -like "*T14 Gen 3*" }
-$x1nano = $stock | Where-Object { $_.Name -like "*X1 Nano Gen 1*" }
-$x1carbon = $stock | Where-Object { $_.Name -like "*x1 Carbon Gen 10*" }
-$desktops = $stock | Where-Object { $_.Name -like "*ThinkCentre M90q Gen3*" }
-$monitors = $stock | Where-Object { $_.Name -like "T27h-20" }
-$dock = $stock | Where-Object { $_.Name -like "*Thinkpad Thunderbolt 4 Dock*" }
-$phones = $stock | Where-Object { $_.Name -like "Apple*" }
-$mk320 = $allassets | Where-Object { $_.Name -like "*M&K*" } | Select-Object $_.type_fields.quantity_16000332716
-$h540 = $allassets | Where-Object { $_.Name -like "*Headset*" } | Select-Object $_.type_fields.quantity_16000332716
+$t16 = $stock | Where-Object { $_.name -like "*T16 Gen 1*" }
+$t14 = $stock | Where-Object { $_.name -like "*T14 Gen 3*" }
+$x1nano = $stock | Where-Object { $_.name -like "*X1 Nano Gen 1*" }
+$x1carbon = $stock | Where-Object { $_.name -like "*x1 Carbon Gen 10*" }
+$desktops = $stock | Where-Object { $_.name -like "*M90q*" }
+$monitors = $stock | Where-Object { $_.name -like "*T27h*" }
+$dock = $stock | Where-Object { $_.name -like "*Thinkpad Thunderbolt 4 Dock*" }
+$phones = $stock | Where-Object { $_.name -like "Apple*" }
+$mk320 = $allassets | Where-Object { $_.name -like "*M&K*" } | Select-Object $_.type_fields.quantity_16000332716
+$h540 = $allassets | Where-Object { $_.name -like "*Headset*" } | Select-Object $_.type_fields.quantity_16000332716
 
 $JSON = [Ordered]@{
     "type"        = "message"
@@ -72,7 +72,7 @@ $JSON = [Ordered]@{
                     }
                     @{
                         "type"          = "TextBlock"
-                        "text"          = "Updated as of: $(Get-Date -Format "dddd, yyyy/MM/dd")"
+                        "text"          = "Updated as of: $(Get-Date -Format "dddd, yyyy/MM/dd, hh:MM:ss")"
                         "size"          = "Medium"
                         "weight"        = "Bolder"
                         "color"         = "Good"
