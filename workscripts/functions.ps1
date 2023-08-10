@@ -606,9 +606,6 @@ Function Run-MFACycle {
 Function Set-EmailForwarding {
 
     <#
-        .SYNOPSIS
-        Enables email forwarding for a user's mailbox.
-
         .DESCRIPTION
         This function enables email forwarding for the specified user's mailbox and sets the forwarding address.
 
@@ -644,6 +641,7 @@ Function Set-EmailForwarding {
         Write-Error "An error occurred: $($_.Exception.Message)"
     }
 }
+
 
 
 

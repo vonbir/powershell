@@ -1,4 +1,4 @@
-﻿﻿
+﻿﻿﻿﻿
 # -File C:\Users\brylle.purificacion\powershell\workscripts\inventory_stock_alert.ps1 -ExecutionPolicy Bypass -NoProfile -NonInteractive
 
 $APIKey = Import-Clixml -Path "C:\Users\brylle.purificacion\apikey.txt"
@@ -87,7 +87,7 @@ try {
                     "body"    = @(
                         @{
                             "type"          = "TextBlock"
-                            "text"          = "Updated as of: $(Get-Date -Format "dddd, yyyy/MM/dd, hh:MM:ss")"
+                            "text"          = "Updated as of: $(Get-Date -Format "dddd, yyyy/MM/dd, hh:mm:ss")"
                             "size"          = "Small"
                             "weight"        = "Bolder"
                             "color"         = "Good"

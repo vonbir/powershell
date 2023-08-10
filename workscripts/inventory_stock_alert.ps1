@@ -72,7 +72,7 @@ $JSON = [Ordered]@{
                     }
                     @{
                         "type"          = "TextBlock"
-                        "text"          = "Updated as of: $(Get-Date -Format "dddd, yyyy/MM/dd, hh:MM:ss")"
+                        "text"          = "Updated as of: $(Get-Date -Format "dddd, yyyy/MM/dd, hh:mm:ss")"
                         "size"          = "Medium"
                         "weight"        = "Bolder"
                         "color"         = "Good"
