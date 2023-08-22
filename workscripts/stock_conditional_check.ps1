@@ -1,4 +1,4 @@
-﻿﻿﻿﻿
+﻿
 # -File C:\Users\brylle.purificacion\powershell\workscripts\inventory_stock_alert.ps1 -ExecutionPolicy Bypass -NoProfile -NonInteractive
 
 $APIKey = Import-Clixml -Path "C:\Users\brylle.purificacion\apikey.txt"
@@ -43,11 +43,11 @@ $t14 = $stock | Where-Object { $_.name -like "*T14 Gen 3*" }
 $x1nano = $stock | Where-Object { $_.name -like "*X1 Nano Gen 1*" }
 $x1carbon = $stock | Where-Object { $_.name -like "*x1 Carbon Gen 10*" }
 $desktops = $stock | Where-Object { $_.name -like "*M90q*" }
-$monitors = $stock | Where-Object { $_.name -like "*T27h*" }
+$monitors = $stock | Where-Object { $_.name -like "*27*Monitor*" }
 $dock = $stock | Where-Object { $_.name -like "*Thinkpad Thunderbolt 4 Dock*" }
 $phones = $stock | Where-Object { $_.name -like "Apple*" }
-$mk320 = $allassets | Where-Object { $_.name -like "*M&K*" } | Select-Object @{n = 'Count'; e = { $_.type_fields.quantity_16000332716 } }
-$h540 = $allassets | Where-Object { $_.name -like "*Headset*" } | Select-Object @{n = 'Count'; e = { $_.type_fields.quantity_16000332716 } }
+$mk320 = $allassets | Where-Object { $_.name -like "*M&K*" } | Select-Object Name, @{n = 'Count'; e = { $_.type_fields.quantity_16000332716 } }
+$h540 = $allassets | Where-Object { $_.name -like "*Headset*" } | Select-Object Name, @{n = 'Count'; e = { $_.type_fields.quantity_16000332716 } }
 
 $vartoCheck = @($t16, $t14, $x1nano, $x1carbon, $desktops, $dock, $phones, $mk320, $h540, $monitors)
 
@@ -56,14 +56,15 @@ try {
     $lowQuantityItems = @()
 
     foreach ($item in $vartoCheck) {
+
         if ($item.Count -le 6) {
-            $itemName = if ($item -is [System.Management.Automation.PSCustomObject]) {
+            $assetName = if ($item -is [System.Management.Automation.PSCustomObject]) {
                 $item.Name
             } else {
                 $item[0].Name
             }
             $lowQuantityItems += @{
-                "AssetName" = $itemName
+                "AssetName" = $assetName
                 "Quantity"  = $item.Count
             }
         }
@@ -166,7 +167,6 @@ try {
 
     $parameters = @{
         "URI"         = "https://greatbuildersolutions.webhook.office.com/webhookb2/1386cb5b-c516-43d4-b5db-a49fc389e971@6b152703-09ac-40ef-87cb-89f5be3bb6aa/IncomingWebhook/832225d99dac4323959b3f40e64b4900/a258c296-5ad3-49a6-91cf-b271bd53fb2d"
-        # test "URI"         = "https://greatbuildersolutions.webhook.office.com/webhookb2/cec7e207-dcbe-46af-ab09-0fada3fa2281@6b152703-09ac-40ef-87cb-89f5be3bb6aa/IncomingWebhook/fb68fb1cda06423ba0b1947f9a3405d0/a258c296-5ad3-49a6-91cf-b271bd53fb2d"
         "Method"      = "POST"
         "Body"        = $JSON
         "ContentType" = "application/json"

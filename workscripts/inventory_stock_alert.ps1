@@ -39,7 +39,7 @@ $t14 = $stock | Where-Object { $_.name -like "*T14 Gen 3*" }
 $x1nano = $stock | Where-Object { $_.name -like "*X1 Nano Gen 1*" }
 $x1carbon = $stock | Where-Object { $_.name -like "*x1 Carbon Gen 10*" }
 $desktops = $stock | Where-Object { $_.name -like "*M90q*" }
-$monitors = $stock | Where-Object { $_.name -like "*T27h*" }
+$monitors = $stock | Where-Object { $_.name -like "*27*Monitor*" }
 $dock = $stock | Where-Object { $_.name -like "*Thinkpad Thunderbolt 4 Dock*" }
 $phones = $stock | Where-Object { $_.name -like "Apple*" }
 $mk320 = $allassets | Where-Object { $_.name -like "*M&K*" } | Select-Object $_.type_fields.quantity_16000332716
@@ -151,7 +151,7 @@ $JSON = [Ordered]@{
                                     }
                                     @{
                                         "type"                = "TextBlock"
-                                        "text"                = "ThinkVision T27h-20"
+                                        "text"                = "ThinkVision 27-inch Monitors"
                                         "horizontalAlignment" = "Center"
                                         "size"                = "Medium"
                                         "highlight"           = $false
