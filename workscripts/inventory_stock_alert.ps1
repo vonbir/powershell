@@ -34,16 +34,16 @@ try {
 
 $stock = $allAssets | Where-Object { $_.type_fields.asset_state_16000332715 -eq "In Stock" } ## pulls all assets in stock
 
-$t16 = $stock | Where-Object { $_.name -like "*T16 Gen 1*" }
+$t16 = $stock | Where-Object { $_.name -like "*T16 Gen 2*" }
 $t14 = $stock | Where-Object { $_.name -like "*T14 Gen 3*" }
 $x1nano = $stock | Where-Object { $_.name -like "*X1 Nano Gen 1*" }
 $x1carbon = $stock | Where-Object { $_.name -like "*x1 Carbon Gen 10*" }
 $desktops = $stock | Where-Object { $_.name -like "*M90q*" }
-$monitors = $stock | Where-Object { $_.name -like "*27*Monitor*" }
+$monitors = $stock | Where-Object { $_.name -like "*T27*" }
 $dock = $stock | Where-Object { $_.name -like "*Thinkpad Thunderbolt 4 Dock*" }
 $phones = $stock | Where-Object { $_.name -like "Apple*" }
 $mk320 = $allassets | Where-Object { $_.name -like "*M&K*" } | Select-Object $_.type_fields.quantity_16000332716
-$h540 = $allassets | Where-Object { $_.name -like "*Headset*" } | Select-Object $_.type_fields.quantity_16000332716
+$h540 = $allassets |     Where-Object { $_.name -like "*Headset*" } | Select-Object $_.type_fields.quantity_16000332716
 
 $JSON = [Ordered]@{
     "type"        = "message"
