@@ -28,33 +28,62 @@ $customUsers = foreach ($row in $csvData) {
 # creates a foreach loop that goes through each user and assigns the respective attribute values
 $totalusers = foreach ($user in $customUsers) {
 
-    Set-AzureADUserExtension -ObjectId $user.EmailAddress -ExtensionName ExtensionAttribute1 -ExtensionValue "TM"
-    Write-Host -ForegroundColor Yellow "Successfully set the customAttribute1 to '$($user.customAttribute1)'"
-    Set-AzureADUserExtension -ObjectId $user -ExtensionName ExtensionAttribute10 -ExtensionValue $user.CustomAttribute10
-    Write-Host -ForegroundColor Yellow "Successfully set the customAttribute10 to '$($user.customAttribute10)'"
-    Set-AzureADUserExtension -ObjectId $user -ExtensionName ExtensionAttribute2 -ExtensionValue $user.CustomAttribute2
-    Write-Host -ForegroundColor Yellow "Successfully set the customAttribute2 to '$($user.customAttribute2)'"
-    Set-MsolUser -UserPrincipalName $user.EmailAddress -Title $user.JobTitle
+    $userCheck = Get-MsolUser -UserPrincipalName $user.userPrincipalName
+
+    if($userCheck -eq $Null){
+
+    $userCreated = New-MsolUser -UserPrincipalName $user.userPrincipalName
+
+    if($userCreated){
+        Set-AzureADUserExtension -ObjectId $user.EmailAddress -ExtensionName ExtensionAttribute1 -ExtensionValue "TM"
+        Write-Host -ForegroundColor Yellow "Successfully set the customAttribute1 to '$($user.customAttribute1)'"
+        Set-AzureADUserExtension -ObjectId $user -ExtensionName ExtensionAttribute10 -ExtensionValue $user.CustomAttribute10
+        Write-Host -ForegroundColor Yellow "Successfully set the customAttribute10 to '$($user.customAttribute10)'"
+        Set-AzureADUserExtension -ObjectId $user -ExtensionName ExtensionAttribute2 -ExtensionValue $user.CustomAttribute2
+        Write-Host -ForegroundColor Yellow "Successfully set the customAttribute2 to '$($user.customAttribute2)'"
+        Write-Host -ForegroundColor Yellow "AzureAD attributes have been successfully set.."
+    }
+    else{
+        Write-Host "Something went wrong in the process of creating the user, lease try again later.."
+    }
+    }
+    else {
+        Set-AzureADUserExtension -ObjectId $user.EmailAddress -ExtensionName ExtensionAttribute1 -ExtensionValue "TM"
+        Write-Host -ForegroundColor Yellow "Successfully set the customAttribute1 to '$($user.customAttribute1)'"
+        Set-AzureADUserExtension -ObjectId $user -ExtensionName ExtensionAttribute10 -ExtensionValue $user.CustomAttribute10
+        Write-Host -ForegroundColor Yellow "Successfully set the customAttribute10 to '$($user.customAttribute10)'"
+        Set-AzureADUserExtension -ObjectId $user -ExtensionName ExtensionAttribute2 -ExtensionValue $user.CustomAttribute2
+        Write-Host -ForegroundColor Yellow "Successfully set the customAttribute2 to '$($user.customAttribute2)'"
+        Write-Host -ForegroundColor Yellow "AzureAD attributes have been successfully set.."
+    }
 
 
 }
-
-
-
-#Set-AzureADUserExtension -ObjectId $user -ExtensionName ExtensionAttribute2 -ExtensionValue "Unmanaged"
-#Write-Host "extensionAttribute2 'Unmanaged' has been SUCCESSFULLY added for $user.."
-}
-
-# $totalusers = foreach ($user in $csvData.userPrincipalName) {
-#    Get-MailboxStatistics -Identity $user | Select-Object DisplayName, TotalItemSize, $csvData.isLicensed, @{N = "Licenses"; E = { $csvData.Licenses.AccountSkuId } }
-#}
-
-$totalusers | Sort-Object -Descending
-
-# for modifying Microsoft 365 attributes in bulk through a foreach loop
-$totalusers = foreach ($user in $customUsers) {
-    Set-MsolUser -UserPrincipalName $user.EmailAddress -Department $user.Department -Office $user.Office -StreetAddress $user.StreetAddress -City $user.City -PostalCode $user.PostalCode -Country $user.Country -State $user.State
-}
-
+<#
+        $results = [PSCustomObject]@{
+        userPrincipalName         = $user.userPrincipalName
+        AccountEnabled            = $AzureADUser.AccountEnabled
+        RecipientTypeDetails      = $mailbox.RecipientTypeDetails
+        RecipientType             = $mailbox.RecipientType
+        jobTitle                  = $azureADUser.jobTitle
+        StreetAddress             = $azureADUser.StreetAddress
+        State                     = $azureADUser.State
+        TelephoneNumber           = $azureADUser.TelephoneNumber
+        PostalCode                = $AzureADUser.PostalCode
+        City                      = $AzureADUser.City
+        Department                = $AzureADUser.Department
+        CompanyName               = $AzureADUser.CompanyName
+        o365_groups               = $groups.DisplayName
+        isLicensed                = $user.isLicensed
+        Licenses                  = $user.Licenses
+        msexchHideFromAddressBook = $mailbox.msexchHideFromAddressBook
+        blockedCredential         = $user.blockedCredential
+        EmailForwardingStatus     = $mailbox.EmailForwardingStatus
+        ForwardingSmtpAddress     = $mailbox.ForwardingSmtpAddress
+        ForwardingAddress         = $mailbox.ForwardingAddress
+        TerminationDate           = $mailbox.TerminationDate
+        }
+        $results | Format-List *
+#>
 
 # This is a script that allows you to run a line and iterate through rows of a spreadsheet
