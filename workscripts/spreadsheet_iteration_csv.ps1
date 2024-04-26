@@ -41,7 +41,38 @@
     # creates a foreach loop that goes through each user and assigns the respective attribute values
     foreach ($user in $customUsers) {
 
+<<<<<<< HEAD
         $userCheck = Get-MsolUser -UserPrincipalName $user.userPrincipalName
+=======
+    $userCheck = Get-MsolUser -UserPrincipalName $user.userPrincipalName
+
+    if($userCheck -eq $Null){
+
+    $userCreated = New-MsolUser -UserPrincipalName $user.userPrincipalName
+
+    if($userCreated){
+        Set-AzureADUserExtension -ObjectId $user.EmailAddress -ExtensionName ExtensionAttribute1 -ExtensionValue "TM"
+        Write-Host -ForegroundColor Yellow "Successfully set the customAttribute1 to '$($user.customAttribute1)'"
+        Set-AzureADUserExtension -ObjectId $user -ExtensionName ExtensionAttribute10 -ExtensionValue $user.CustomAttribute10
+        Write-Host -ForegroundColor Yellow "Successfully set the customAttribute10 to '$($user.customAttribute10)'"
+        Set-AzureADUserExtension -ObjectId $user -ExtensionName ExtensionAttribute2 -ExtensionValue $user.CustomAttribute2
+        Write-Host -ForegroundColor Yellow "Successfully set the customAttribute2 to '$($user.customAttribute2)'"
+        Write-Host -ForegroundColor Yellow "AzureAD attributes have been successfully set.."
+    }
+    else{
+        Write-Host "Something went wrong in the process of creating the user, lease try again later.."
+    }
+    }
+    else {
+        Set-AzureADUserExtension -ObjectId $user.EmailAddress -ExtensionName ExtensionAttribute1 -ExtensionValue "TM"
+        Write-Host -ForegroundColor Yellow "Successfully set the customAttribute1 to '$($user.customAttribute1)'"
+        Set-AzureADUserExtension -ObjectId $user -ExtensionName ExtensionAttribute10 -ExtensionValue $user.CustomAttribute10
+        Write-Host -ForegroundColor Yellow "Successfully set the customAttribute10 to '$($user.customAttribute10)'"
+        Set-AzureADUserExtension -ObjectId $user -ExtensionName ExtensionAttribute2 -ExtensionValue $user.CustomAttribute2
+        Write-Host -ForegroundColor Yellow "Successfully set the customAttribute2 to '$($user.customAttribute2)'"
+        Write-Host -ForegroundColor Yellow "AzureAD attributes have been successfully set.."
+    }
+>>>>>>> a85b8a5f86c9534ce23b12fb8e4814392063ffcc
 
         if ($null -eq $userCheck) {
 
@@ -68,3 +99,34 @@
     }
 
 }
+<<<<<<< HEAD
+=======
+<#
+        $results = [PSCustomObject]@{
+        userPrincipalName         = $user.userPrincipalName
+        AccountEnabled            = $AzureADUser.AccountEnabled
+        RecipientTypeDetails      = $mailbox.RecipientTypeDetails
+        RecipientType             = $mailbox.RecipientType
+        jobTitle                  = $azureADUser.jobTitle
+        StreetAddress             = $azureADUser.StreetAddress
+        State                     = $azureADUser.State
+        TelephoneNumber           = $azureADUser.TelephoneNumber
+        PostalCode                = $AzureADUser.PostalCode
+        City                      = $AzureADUser.City
+        Department                = $AzureADUser.Department
+        CompanyName               = $AzureADUser.CompanyName
+        o365_groups               = $groups.DisplayName
+        isLicensed                = $user.isLicensed
+        Licenses                  = $user.Licenses
+        msexchHideFromAddressBook = $mailbox.msexchHideFromAddressBook
+        blockedCredential         = $user.blockedCredential
+        EmailForwardingStatus     = $mailbox.EmailForwardingStatus
+        ForwardingSmtpAddress     = $mailbox.ForwardingSmtpAddress
+        ForwardingAddress         = $mailbox.ForwardingAddress
+        TerminationDate           = $mailbox.TerminationDate
+        }
+        $results | Format-List *
+#>
+
+# This is a script that allows you to run a line and iterate through rows of a spreadsheet
+>>>>>>> a85b8a5f86c9534ce23b12fb8e4814392063ffcc
