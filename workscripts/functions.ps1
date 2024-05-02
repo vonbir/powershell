@@ -5,8 +5,7 @@
         [string]$upn
     )
     Try {
-        $adUser = Get-AzureADUser -SearchString $upn
-        $adGroup = Get-ADPrincipalGroupMembership -Identity $adUser.MailNickName
+        $adGroup = Get-ADPrincipalGroupMembership -Identity $upn
         $adGroup | Select-Object Name
     } Catch {
         Write-Host $Error[0] -ForegroundColor Red
@@ -369,7 +368,7 @@ Function Offboard-ADUser {
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory)]
-        [string]$samname
+        [string]$UserPrincipalName
     )
 
     # Check if Active Directory module is installed
@@ -396,34 +395,34 @@ Function Offboard-ADUser {
     $date = Get-Date -Format yyyy/MM/dd
 
     try {
-        if ($samname) {
+        if ($UserPrincipalName) {
             # disables the AD account
-            Disable-ADAccount -Identity $samname -Credential $Cred
+            Disable-ADAccount -Identity $UserPrincipalName -Credential $Cred
             Write-Host "--------------------------------------"
-            Write-Host "Successfully disabled the user: $samname" -ForegroundColor Green
+            Write-Host "Successfully disabled the user: $UserPrincipalName" -ForegroundColor Green
 
             # pulls all user info
-            $adDetails = Get-ADUser -Identity $samname -Properties *
-            $o365Details = Get-MsolUser -SearchString $samname
-            $exchangeDetails = Get-Mailbox -Identity $samname
+            $adDetails = Get-ADUser -Identity $UserPrincipalName -Properties *
+            $o365Details = Get-MsolUser -SearchString $UserPrincipalName
+            $exchangeDetails = Get-Mailbox -Identity $UserPrincipalName
 
             # removes all AD groups
-            Get-ADUser -Identity $samname -Properties MemberOf | ForEach-Object {
+            Get-ADUser -Identity $UserPrincipalName -Properties MemberOf | ForEach-Object {
                 $_.MemberOf | Remove-ADGroupMember -Credential $Cred -Members $_.DistinguishedName -Confirm:$false
-                Write-Host "Successfully removed the user $samname from all the on-prem AD groups" -ForegroundColor Green
+                Write-Host "Successfully removed the user $UserPrincipalName from all the on-prem AD groups" -ForegroundColor Green
             }
 
             # puts the current termination date
-            Set-ADUser -Identity $samname -Replace @{extensionAttribute15 = "$date" } -Credential $Cred
+            Set-ADUser -Identity $UserPrincipalName -Replace @{extensionAttribute15 = "$date" } -Credential $Cred
             Write-Host "The termination date has been set to: $date" -ForegroundColor Green
             Write-Host "The E3 license has been retained, waiting for the mailbox to be converted to SHARED." -ForegroundColor Green
 
             # hides the user from the global adddress book
-            Set-ADUser -Identity $samname -Add @{msExchHideFromAddressLists = $true } -Credential $Cred
+            Set-ADUser -Identity $UserPrincipalName -Add @{msExchHideFromAddressLists = $true } -Credential $Cred
             Write-Host "The msExchHideFromAddressLists attribute has been set to: 'TRUE'" -ForegroundColor Green
 
             # initiate sign-out of all office 365 sessions by revoking the refresh tokens issue to applications for a use
-            Get-AzureADUser -SearchString $samname | revoke-azureaduserallrefreshtoken
+            Get-AzureADUser -SearchString $UserPrincipalName | revoke-azureaduserallrefreshtoken
             Write-Host "Successfully initiated sign-out of all o365 sessions for this user.." -ForegroundColor Green
 
             # blocks sign-in from this o365 account
@@ -431,15 +430,15 @@ Function Offboard-ADUser {
             Write-Host "Successfully blocked all the sign-ins from this o365 account.." -ForegroundColor Green
 
             # converts the regular user mailbox to shared, this shouldnt work anymore as it needs exchange admin priv.
-            #Set-Mailbox -Identity $samname -Type Shared
+            #Set-Mailbox -Identity $UserPrincipalName -Type Shared
             #Write-Host "Successfully converted the user's mailbox to 'SHARED'." -ForegroundColor Green
 
             Write-Host
-            Get-ADUser -Identity $samname -Properties * | Select-Object DistinguishedName, Enabled, SamAccountName, UserPrincipalName, extension*
+            Get-ADUser -Identity $UserPrincipalName -Properties * | Select-Object DistinguishedName, Enabled, SamAccountName, UserPrincipalName, extension*
             Write-Host
         } Else {
             Write-Host ""
-            Write-Host "The user: '$samname' does not exist on the domain. Please try again.."
+            Write-Host "The user: '$UserPrincipalName' does not exist on the domain. Please try again.."
         }
     } Catch {
         Write-Host
@@ -840,15 +839,13 @@ Function Add-MFAExclude {
                 Write-Host
                 Write-Host "The user has been successfully added to the 'MFA Exclude' group." -ForegroundColor Yellow
                 Write-Host
-            } else {
-                Write-Host "The operation has been cancelled..."
             }
         }
     } catch {
         Write-Host "An error has occurred, please try again later..."
     }
-
 }
+
 Function Remove-MFAExclude {
     <#
         .DESCRIPTION

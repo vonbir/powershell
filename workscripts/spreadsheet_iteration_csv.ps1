@@ -40,56 +40,36 @@
 
     # creates a foreach loop that goes through each user and assigns the respective attribute values
     foreach ($user in $customUsers) {
+        $userCheck = Get-MsolUser -UserPrincipalName $user.UserPrincipalName
 
-<<<<<<< HEAD
-        $userCheck = Get-MsolUser -UserPrincipalName $user.userPrincipalName
-=======
-    $userCheck = Get-MsolUser -UserPrincipalName $user.userPrincipalName
+        if (-not $userCheck) {
+            # Create the user if not already exists
+            $userCreate = New-MsolUser -UserPrincipalName $user.userPrincipalName -DisplayName $user.DisplayName -Title $user.jobTitle -City $user.City -Country $user.Country -Department $user.Department -FirstName $user.FirstName -LastName $user.LastName -Office $user.Office -PostalCode $user.postalCode -State $user.State -StreetAddress $user.StreetAddress
 
-    if($userCheck -eq $Null){
+            if ($userCreate) {
+                $retryCount = 0
+                do {
+                    $userCheck2 = Get-AzureADUser -ObjectId $user.UserPrincipalName
+                    Start-Sleep -Milliseconds 200
+                    $retryCount++
+                } until ($userCheck2 -or $retryCount -eq 10) # Retry for a maximum of 5 times
 
-    $userCreated = New-MsolUser -UserPrincipalName $user.userPrincipalName
-
-    if($userCreated){
-        Set-AzureADUserExtension -ObjectId $user.EmailAddress -ExtensionName ExtensionAttribute1 -ExtensionValue "TM"
-        Write-Host -ForegroundColor Yellow "Successfully set the customAttribute1 to '$($user.customAttribute1)'"
-        Set-AzureADUserExtension -ObjectId $user -ExtensionName ExtensionAttribute10 -ExtensionValue $user.CustomAttribute10
-        Write-Host -ForegroundColor Yellow "Successfully set the customAttribute10 to '$($user.customAttribute10)'"
-        Set-AzureADUserExtension -ObjectId $user -ExtensionName ExtensionAttribute2 -ExtensionValue $user.CustomAttribute2
-        Write-Host -ForegroundColor Yellow "Successfully set the customAttribute2 to '$($user.customAttribute2)'"
-        Write-Host -ForegroundColor Yellow "AzureAD attributes have been successfully set.."
-    }
-    else{
-        Write-Host "Something went wrong in the process of creating the user, lease try again later.."
-    }
-    }
-    else {
-        Set-AzureADUserExtension -ObjectId $user.EmailAddress -ExtensionName ExtensionAttribute1 -ExtensionValue "TM"
-        Write-Host -ForegroundColor Yellow "Successfully set the customAttribute1 to '$($user.customAttribute1)'"
-        Set-AzureADUserExtension -ObjectId $user -ExtensionName ExtensionAttribute10 -ExtensionValue $user.CustomAttribute10
-        Write-Host -ForegroundColor Yellow "Successfully set the customAttribute10 to '$($user.customAttribute10)'"
-        Set-AzureADUserExtension -ObjectId $user -ExtensionName ExtensionAttribute2 -ExtensionValue $user.CustomAttribute2
-        Write-Host -ForegroundColor Yellow "Successfully set the customAttribute2 to '$($user.customAttribute2)'"
-        Write-Host -ForegroundColor Yellow "AzureAD attributes have been successfully set.."
-    }
->>>>>>> a85b8a5f86c9534ce23b12fb8e4814392063ffcc
-
-        if ($null -eq $userCheck) {
-
-            New-MsolUser -UserPrincipalName $user.userPrincipalName -DisplayName $user.DisplayName -Title $user.jobTitle -City $user.City -Country $user.Country -Department $user.Department -FirstName $user.FirstName -LastName $user.LastName -Office $user.Office -PostalCode $user.postalCode -State $user.State -StreetAddress $user.StreetAddress
-
-            $userCheck2 = Get-AzureADUser -ObjectId $user.userPrincipalName
-
-            if ($userCheck2) {
-                Set-MsolUserPassword -UserPrincipalName $user.userPrincipalName -NewPassword $user.Password # sets the password
-                Set-AzureADUserExtension -ObjectId $user.userPrincipalName -ExtensionName ExtensionAttribute1 -ExtensionValue $user.customAttribute1
-                Set-AzureADUserExtension -ObjectId $user.userPrincipalName -ExtensionName ExtensionAttribute10 -ExtensionValue $user.CustomAttribute10
-                Set-AzureADUserExtension -ObjectId $user.userPrincipalName -ExtensionName ExtensionAttribute2 -ExtensionValue $user.CustomAttribute2
-                Set-AzureADUserExtension -ObjectId $user.userPrincipalName -ExtensionName ExtensionAttribute12 -ExtensionValue $user.CustomAttribute12
-                Write-Host -ForegroundColor Yellow "The following user '$($user.userPrincipalName)' has been successfully created."
+                if ($userCheck2) {
+                    Set-MsolUserPassword -UserPrincipalName $user.userPrincipalName -NewPassword $user.Password # sets the password
+                    Set-AzureADUserManager -ObjectId $user.userPrincipalName -RefObjectId $user.reportingManager # sets the manager
+                    Set-AzureADUserExtension -ObjectId $user.userPrincipalName -ExtensionName ExtensionAttribute1 -ExtensionValue $user.customAttribute1
+                    Set-AzureADUserExtension -ObjectId $user.userPrincipalName -ExtensionName ExtensionAttribute10 -ExtensionValue $user.CustomAttribute10
+                    Set-AzureADUserExtension -ObjectId $user.userPrincipalName -ExtensionName ExtensionAttribute2 -ExtensionValue $user.CustomAttribute2
+                    Set-AzureADUserExtension -ObjectId $user.userPrincipalName -ExtensionName ExtensionAttribute12 -ExtensionValue $user.CustomAttribute12
+                    Write-Host -ForegroundColor Yellow "The following user '$($user.userPrincipalName)' has been successfully created."
+                } else {
+                    Write-Host -ForegroundColor Red "Failed to create user '$($user.UserPrincipalName)'. Maximum retries reached."
+                }
             }
         } else {
+            # Set Azure AD user extensions if the user already exists
             Set-MsolUserPassword -UserPrincipalName $user.userPrincipalName -NewPassword $user.Password # sets the password
+            Set-AzureADUserManager -ObjectId $user.userPrincipalName -RefObjectId $user.reportingManager # sets the manager
             Set-AzureADUserExtension -ObjectId $user.userPrincipalName -ExtensionName ExtensionAttribute1 -ExtensionValue $user.customAttribute1
             Set-AzureADUserExtension -ObjectId $user.userPrincipalName -ExtensionName ExtensionAttribute10 -ExtensionValue $user.CustomAttribute10
             Set-AzureADUserExtension -ObjectId $user.userPrincipalName -ExtensionName ExtensionAttribute2 -ExtensionValue $user.CustomAttribute2
@@ -97,10 +77,7 @@
             Write-Host -ForegroundColor Yellow "The following user '$($user.userPrincipalName)' has been successfully updated."
         }
     }
-
 }
-<<<<<<< HEAD
-=======
 <#
         $results = [PSCustomObject]@{
         userPrincipalName         = $user.userPrincipalName
@@ -129,4 +106,3 @@
 #>
 
 # This is a script that allows you to run a line and iterate through rows of a spreadsheet
->>>>>>> a85b8a5f86c9534ce23b12fb8e4814392063ffcc
