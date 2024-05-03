@@ -106,3 +106,15 @@
 #>
 
 # This is a script that allows you to run a line and iterate through rows of a spreadsheet
+
+# $results = foreach ($user in $users){
+#     $exchange = Get-Mailbox -Identity $user.UserPrincipalName | select userPrincipalName,hasPicture
+#     $msonline = Get-MsolUser -UserPrincipalName $user.UserPrincipalName
+#     [PSCustomObject]@{
+#     Name = $exchange.UserPrincipalName
+#     Title = $msonline.Title
+#     FirstName = $msonline.FirstName
+#     LastName = $msonline.LastName
+#     Department = $msonline.Department
+#     }
+#     }

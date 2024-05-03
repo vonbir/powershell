@@ -409,17 +409,17 @@ Function Offboard-ADUser {
             # removes all AD groups
             Get-ADUser -Identity $UserPrincipalName -Properties MemberOf | ForEach-Object {
                 $_.MemberOf | Remove-ADGroupMember -Credential $Cred -Members $_.DistinguishedName -Confirm:$false
-                Write-Host "Successfully removed the user $UserPrincipalName from all the on-prem AD groups" -ForegroundColor Green
+                Write-Host "> Successfully disabled the user: " -NoNewline; Write-Host "$UserPrincipalName" -ForegroundColor Green
             }
 
             # puts the current termination date
             Set-ADUser -Identity $UserPrincipalName -Replace @{extensionAttribute15 = "$date" } -Credential $Cred
-            Write-Host "The termination date has been set to: $date" -ForegroundColor Green
+            Write-Host "> The termination date has been set to: " -NoNewline; Write-Host "$date" -ForegroundColor Green
             Write-Host "The E3 license has been retained, waiting for the mailbox to be converted to SHARED." -ForegroundColor Green
 
             # hides the user from the global adddress book
             Set-ADUser -Identity $UserPrincipalName -Add @{msExchHideFromAddressLists = $true } -Credential $Cred
-            Write-Host "The msExchHideFromAddressLists attribute has been set to: 'TRUE'" -ForegroundColor Green
+            Write-Host "> The msExchHideFromAddressLists attribute has been set to: " -NoNewline; Write-Host "'TRUE'" -ForegroundColor Green
 
             # initiate sign-out of all office 365 sessions by revoking the refresh tokens issue to applications for a use
             Get-AzureADUser -SearchString $UserPrincipalName | revoke-azureaduserallrefreshtoken
@@ -432,9 +432,7 @@ Function Offboard-ADUser {
             # converts the regular user mailbox to shared, this shouldnt work anymore as it needs exchange admin priv.
             #Set-Mailbox -Identity $UserPrincipalName -Type Shared
             #Write-Host "Successfully converted the user's mailbox to 'SHARED'." -ForegroundColor Green
-
-            Write-Host
-            Get-ADUser -Identity $UserPrincipalName -Properties * | Select-Object DistinguishedName, Enabled, SamAccountName, UserPrincipalName, extension*
+            Get-ADUser -Identity $UserPrincipalName -Properties * | Select-Object SamAccountName, UserPrincipalName, Enabled, extension*
             Write-Host
         } Else {
             Write-Host ""
